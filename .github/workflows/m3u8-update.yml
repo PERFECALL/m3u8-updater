@@ -2,45 +2,54 @@ name: M3U8 Update Workflow
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Runs every hour
-  workflow_dispatch:  # Trigger manually
+    - cron: '0 * * * *'  # Every hour
+  workflow_dispatch:  # You can trigger it manually as well
 
 jobs:
   update-m3u8-file:
-    runs-on: ubuntu-latest  # Runs the job on an Ubuntu environment.
+    runs-on: ubuntu-latest  # Runs the job on an Ubuntu environment
 
     steps:
-      # Step 1: Checkout the repository so the workflow can access files.
+      # Step 1: Checkout the repository so the workflow can access the files
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Step 2: Set up Python environment.
+      # Step 2: Set up Python environment
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
           python-version: '3.8'
 
-      # Step 3: Install necessary dependencies.
+      # Step 3: Install necessary dependencies
       - name: Install dependencies
         run: |
           pip install requests beautifulsoup4
 
-      # Step 4: Run Python script to scrape the m3u8 link.
-      - name: Download M3U8 Link
+      # Step 4: Run the Python script to scrape the m3u8 link and write it to a file
+      - name: Run Python script
         run: |
           python -c "
 import requests
 from bs4 import BeautifulSoup
 
+# Define the URL to scrape
 url = 'https://bongoflixbd.top/crichd/'
+
+# Send a GET request to the website
 response = requests.get(url)
+
+# Parse the response content with BeautifulSoup
 soup = BeautifulSoup(response.text, 'html.parser')
 
+# Initialize m3u8 link as None
 m3u8_link = None
+
+# Find the <video> tag and extract the 'src' attribute
 video_tag = soup.find('video')
 if video_tag and video_tag.get('src'):
     m3u8_link = video_tag['src']
 
+# If the m3u8 link is found, write it to a .m3u file
 if m3u8_link:
     with open('output.m3u', 'w') as file:
         file.write(m3u8_link)
@@ -48,12 +57,12 @@ else:
     print('M3U8 link not found!')
           "
 
-      # Step 5: Check if the m3u8 file was created and print the output
+      # Step 5: Check if the m3u8 file was created
       - name: Check output.m3u file
         run: |
           ls -la output.m3u
 
-      # Step 6: Commit and push the changes if the m3u8 file was updated.
+      # Step 6: Commit and push the changes if the m3u8 file was updated
       - name: Commit and Push M3U8 File
         run: |
           git config --global user.name 'github-actions'
