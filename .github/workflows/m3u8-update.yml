@@ -32,41 +32,28 @@ jobs:
 import requests
 from bs4 import BeautifulSoup
 
-# Define the URL to scrape
 url = 'https://bongoflixbd.top/crichd/'
-
-# Send a GET request to the website
 response = requests.get(url)
-
-# Parse the response content with BeautifulSoup
 soup = BeautifulSoup(response.text, 'html.parser')
 
-# Initialize m3u8 link as None
 m3u8_link = None
-
-# Find the <video> tag and extract the 'src' attribute
 video_tag = soup.find('video')
 if video_tag and video_tag.get('src'):
     m3u8_link = video_tag['src']
 
-# If the m3u8 link is found, write it to a .m3u file
 if m3u8_link:
     with open('output.m3u', 'w') as file:
         file.write(m3u8_link)
 else:
     print('M3U8 link not found!')
           "
-        
-          # Check if the output.m3u file was created
+
+      # Step 5: Check if the m3u8 file was created and print the output
+      - name: Check output.m3u file
+        run: |
           ls -la output.m3u
 
-          # If the file doesn't exist, exit with an error
-          if [ ! -f output.m3u ]; then
-            echo "Error: M3U8 link not found."
-            exit 1
-          fi
-
-      # Step 5: Commit and push the changes if the m3u8 file was updated.
+      # Step 6: Commit and push the changes if the m3u8 file was updated.
       - name: Commit and Push M3U8 File
         run: |
           git config --global user.name 'github-actions'
