@@ -2,8 +2,8 @@ name: M3U8 Update Workflow
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Every hour
-  workflow_dispatch:
+    - cron: '0 * * * *'  # Runs every hour
+  workflow_dispatch:  # Trigger manually
 
 jobs:
   update-m3u8-file:
@@ -55,8 +55,8 @@ if m3u8_link:
         file.write(m3u8_link)
 else:
     print('M3U8 link not found!')
-"
-          
+          "
+        
           # Check if the output.m3u file was created
           ls -la output.m3u
 
