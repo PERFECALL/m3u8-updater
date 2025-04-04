@@ -3,7 +3,7 @@ name: M3U8 Update Workflow
 on:
   schedule:
     - cron: '0 * * * *'  # Runs every hour
-  workflow_dispatch:  # You can trigger it manually as well
+  workflow_dispatch:  # Manual trigger option
 
 jobs:
   update-m3u8-file:
@@ -37,7 +37,7 @@ jobs:
       # Step 5: Run the Python script to scrape the m3u8 link and write it to a file
       - name: Run Python script
         run: |
-          python scrape_m3u8.py
+          python scrape_m3u8.py || echo "Error running the Python script"
 
       # Step 6: Check if the m3u8 file was created
       - name: Check output.m3u file
