@@ -23,19 +23,29 @@ jobs:
       # Step 3: Install necessary dependencies
       - name: Install dependencies
         run: |
+          python --version
+          pip install --upgrade pip
           pip install requests beautifulsoup4
+          pip list  # Check if packages are installed correctly
 
-      # Step 4: Run the Python script to scrape the m3u8 link and write it to a file
+      # Step 4: Debugging - List all files in the repository to ensure python script is present
+      - name: List files in the repository
+        run: |
+          ls -la
+          ls -la scrape_m3u8.py  # Ensure the Python script is present
+
+      # Step 5: Run the Python script to scrape the m3u8 link and write it to a file
       - name: Run Python script
         run: |
           python scrape_m3u8.py
 
-      # Step 5: Check if the m3u8 file was created
+      # Step 6: Check if the m3u8 file was created
       - name: Check output.m3u file
         run: |
           ls -la output.m3u
+          cat output.m3u || echo "No output.m3u file found"
 
-      # Step 6: Commit and push the changes if the m3u8 file was updated
+      # Step 7: Commit and push the changes if the m3u8 file was updated
       - name: Commit and Push M3U8 File
         run: |
           git config --global user.name 'github-actions'
