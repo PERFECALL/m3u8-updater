@@ -1,0 +1,53 @@
+name: M3U8 Update Workflow
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # প্রতি ঘণ্টায় এটি চলবে
+  workflow_dispatch:  # ম্যানুয়ালি চালানোর জন্য
+
+jobs:
+  download-m3u8:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4
+
+      - name: Download M3U8 Link
+        run: |
+          python -c "
+          import requests;
+          from bs4 import BeautifulSoup;
+
+          url = 'https://bongoflixbd.top/crichd/';
+          response = requests.get(url);
+          soup = BeautifulSoup(response.text, 'html.parser');
+          
+          m3u8_link = None;
+          video_tag = soup.find('video');
+          if video_tag and video_tag.get('src'):
+              m3u8_link = video_tag['src'];
+          
+          if m3u8_link:
+              with open('output.m3u', 'w') as file:
+                  file.write(m3u8_link);
+          else:
+              print('M3U8 link not found!');
+          "
+
+      - name: Commit and Push M3U8 File
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'actions@github.com'
+          git add output.m3u
+          git commit -m 'Updated M3U8 file'
+          git push
