@@ -56,18 +56,15 @@ if m3u8_link:
         file.write(m3u8_link)
 else:
     print('M3U8 link not found!')"
-    
-    # You can also print the m3u8_link to debug
-    echo "M3U8 link is: $m3u8_link"
 
-    # Check if the output.m3u file was created
-    ls -la output.m3u
+        # Check if the output.m3u file was created
+        ls -la output.m3u
 
-    # If no link found, the output file won't be generated
-    if [ ! -f output.m3u ]; then
-      echo "Error: M3U8 link not found."
-      exit 1
-    fi
+        # If no link found, the output file won't be generated
+        if [ ! -f output.m3u ]; then
+          echo "Error: M3U8 link not found."
+          exit 1
+        fi
 
     # Step 5: Commit and push the changes if the m3u8 file was updated.
     - name: Commit and Push M3U8 File
