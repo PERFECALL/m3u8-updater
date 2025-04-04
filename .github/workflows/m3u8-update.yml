@@ -1,53 +1,79 @@
 name: M3U8 Update Workflow
 
 on:
+  # This will trigger the workflow every hour (in UTC time).
   schedule:
-    - cron: '0 * * * *'  # প্রতি ঘণ্টায় এটি চলবে
-  workflow_dispatch:  # ম্যানুয়ালি চালানোর জন্য
+    - cron: '0 * * * *'  # Every hour
+
+  # Allows manual triggering of the workflow from the GitHub UI.
+  workflow_dispatch:
 
 jobs:
-  download-m3u8:
-    runs-on: ubuntu-latest
+  update-m3u8-file:
+    runs-on: ubuntu-latest  # Runs the job on an Ubuntu environment.
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+    # Step 1: Checkout the repository so the workflow can access files.
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.8'
+    # Step 2: Set up Python environment.
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
 
-      - name: Install dependencies
-        run: |
-          pip install requests beautifulsoup4
+    # Step 3: Install necessary dependencies.
+    - name: Install dependencies
+      run: |
+        pip install requests beautifulsoup4
 
-      - name: Download M3U8 Link
-        run: |
-          python -c "
-          import requests;
-          from bs4 import BeautifulSoup;
+    # Step 4: Scrape the website and get the m3u8 link.
+    - name: Download M3U8 Link
+      run: |
+        python -c "
+import requests
+from bs4 import BeautifulSoup
 
-          url = 'https://bongoflixbd.top/crichd/';
-          response = requests.get(url);
-          soup = BeautifulSoup(response.text, 'html.parser');
-          
-          m3u8_link = None;
-          video_tag = soup.find('video');
-          if video_tag and video_tag.get('src'):
-              m3u8_link = video_tag['src'];
-          
-          if m3u8_link:
-              with open('output.m3u', 'w') as file:
-                  file.write(m3u8_link);
-          else:
-              print('M3U8 link not found!');
-          "
+# Define the URL you want to scrape
+url = 'https://bongoflixbd.top/crichd/'
 
-      - name: Commit and Push M3U8 File
-        run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email 'actions@github.com'
-          git add output.m3u
-          git commit -m 'Updated M3U8 file'
-          git push
+# Send a GET request to the website
+response = requests.get(url)
+
+# Parse the response content using BeautifulSoup
+soup = BeautifulSoup(response.text, 'html.parser')
+
+# Extract the m3u8 link (assuming the video tag contains the m3u8 URL)
+m3u8_link = None
+video_tag = soup.find('video')  # Find the <video> tag (or modify this based on structure)
+if video_tag and video_tag.get('src'):
+    m3u8_link = video_tag['src']
+
+# If the m3u8 link is found, write it to a .m3u file
+if m3u8_link:
+    with open('output.m3u', 'w') as file:
+        file.write(m3u8_link)
+else:
+    print('M3U8 link not found!')"
+    
+    # You can also print the m3u8_link to debug
+    echo "M3U8 link is: $m3u8_link"
+
+    # Check if the output.m3u file was created
+    ls -la output.m3u
+
+    # If no link found, the output file won't be generated
+    if [ ! -f output.m3u ]; then
+      echo "Error: M3U8 link not found."
+      exit 1
+    fi
+
+    # Step 5: Commit and push the changes if the m3u8 file was updated.
+    - name: Commit and Push M3U8 File
+      run: |
+        git config --global user.name 'github-actions'
+        git config --global user.email 'actions@github.com'
+        git add output.m3u
+        git commit -m 'Updated M3U8 file'
+        git push
